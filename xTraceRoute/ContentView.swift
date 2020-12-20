@@ -20,7 +20,7 @@ struct ContentView :
    View
 {
    @State private var hostname : String = ""
-   @State private var last     : String = ""
+   @State private var running  : Bool = false
    
    private var browser = X3DBrowser (url: [Bundle .main .url (forResource: "Earth", withExtension: "x3dv")!], parameter: [])
    
@@ -28,7 +28,8 @@ struct ContentView :
    {
       VStack (alignment: .leading)
       {
-         TextField ("Host name or IP address", text: $hostname, onCommit: self .onCommit)
+         TextField ("Host name or IP address", text: $hostname, onCommit: onCommit)
+            .disabled (running)
          
          browser
       }
@@ -37,10 +38,11 @@ struct ContentView :
    
    private func onCommit ()
    {
-      guard hostname != last else { return }
-      
-      last = hostname
-      
+      guard !hostname .isEmpty else { return }
+      guard !running else { return }
+
+      DispatchQueue .main .async { running = true }
+
       // Clear locations
       
       guard let group = try? browser .getExecutionContext () .getNamedNode (name: "Locations") else { return }
@@ -65,6 +67,7 @@ struct ContentView :
          task .launchPath     = "/usr/bin/env"
          task .arguments      = ["curl", "ifconfig.me"]
          task .standardOutput = pipe
+         task .standardError  = nil
          
          task .launch ()
          
@@ -81,12 +84,15 @@ struct ContentView :
       {
          debugPrint (hostname)
          
+         running = true
+
          let task = Process ()
          let pipe = Pipe ()
          
          task .launchPath     = "/usr/bin/env"
          task .arguments      = ["traceroute", hostname]
          task .standardOutput = pipe
+         task .standardError  = nil
          
          task .launch ()
          
@@ -99,12 +105,14 @@ struct ContentView :
             
             ipinfo (matches [1])
          }
+         
+         DispatchQueue .main .async { running = false }
       }
    }
    
    private func ipinfo (_ ipaddress : String)
    {
-      DispatchQueue (label: "create3000.ipinfo", qos: .userInteractive) .async
+      DispatchQueue (label: "create3000.ipinfo", qos: .userInteractive) .sync
       {
          debugPrint (ipaddress)
          
@@ -114,6 +122,7 @@ struct ContentView :
          task .launchPath     = "/usr/bin/env"
          task .arguments      = ["curl", "ipinfo.io/\(ipaddress)"]
          task .standardOutput = pipe
+         task .standardError  = nil
          
          task .launch ()
          
