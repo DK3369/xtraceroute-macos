@@ -7,7 +7,7 @@ PROTO Location [
 ]
 {
    DEF Sphere Transform {
-      scale 0.025 0.025 0.025
+      scale 0.0125 0.0125 0.0125
       children Shape {
          appearance Appearance {
             material DEF Material Material {

@@ -82,10 +82,6 @@ struct ContentView :
    {
       DispatchQueue (label: "create3000.xtraceroute", qos: .userInteractive) .async
       {
-         debugPrint (hostname)
-         
-         running = true
-
          let task = Process ()
          let pipe = Pipe ()
          
@@ -114,8 +110,6 @@ struct ContentView :
    {
       DispatchQueue (label: "create3000.ipinfo", qos: .userInteractive) .sync
       {
-         debugPrint (ipaddress)
-         
          let task = Process ()
          let pipe = Pipe ()
          
@@ -128,16 +122,14 @@ struct ContentView :
          
          let fh   = pipe .fileHandleForReading
          let json = fh .readDataToEndOfFile ()
-         
-         debugPrint (json)
-         
+                  
          guard let info = try? JSONSerialization .jsonObject (with: json, options: [ ]) as? [String : String] else
          {
             return
          }
 
          guard let city = info ["city"],
-               let loc = info ["loc"] else { return }
+               let loc  = info ["loc"] else { return }
          
          debugPrint (city, loc)
          
