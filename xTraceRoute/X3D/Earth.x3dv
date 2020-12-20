@@ -188,15 +188,16 @@ function set_locations (value, time)
       vp .orientation  = getOrientation (vp .position, new SFVec3f ());
       vp .set_bind     = true;
       
-      if (value .length > 1)
+      for (var i = routes .children .length; i < value .length - 1; ++ i)
       {
-         var previous = value [value .length - 2];
+         var previous = value [i];
+         var current  = value [i + 1];
          var route    = Browser .currentScene .createProto ('Route');
          
          route .fromLocation = previous;
          route .toLocation   = current;
          
-         routes .children [value .length - 1] = route;
+         routes .children [i] = route;
       }
    }
 }

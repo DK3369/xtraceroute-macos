@@ -90,7 +90,7 @@ struct ContentView :
          let pipe = Pipe ()
          
          task .launchPath     = "/usr/bin/env"
-         task .arguments      = ["traceroute", hostname]
+         task .arguments      = ["traceroute", "-m", "16", hostname]
          task .standardOutput = pipe
          task .standardError  = nil
          
