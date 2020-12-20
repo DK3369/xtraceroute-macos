@@ -1,0 +1,70 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CoreTextSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CoreTextSwift.git",
+        "state": {
+          "branch": "master",
+          "revision": "b070238d7e2f76dd4009996b951fa1d8e1dfe8c3",
+          "version": null
+        }
+      },
+      {
+        "package": "Gzip",
+        "repositoryURL": "https://github.com/1024jp/GzipSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "ba0b6cb51cc6202f896e469b87d2889a46b10d1b",
+          "version": "5.1.1"
+        }
+      },
+      {
+        "package": "LibTessSwift",
+        "repositoryURL": "https://github.com/LuizZak/LibTessSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "da48d3f8e66a614df22d5b2fab2f04576130f46e",
+          "version": "0.8.2"
+        }
+      },
+      {
+        "package": "MiniLexer",
+        "repositoryURL": "https://github.com/LuizZak/MiniLexer.git",
+        "state": {
+          "branch": null,
+          "revision": "4da97d6f92d79402cd3cf35d6438ec723554ae7c",
+          "version": "0.9.5"
+        }
+      },
+      {
+        "package": "SwiftImage",
+        "repositoryURL": "https://github.com/koher/swift-image.git",
+        "state": {
+          "branch": null,
+          "revision": "c61b8cf4613a7fc80d1c2a84231cef2909e837a1",
+          "version": "0.7.1"
+        }
+      },
+      {
+        "package": "swift-numerics",
+        "repositoryURL": "https://github.com/apple/swift-numerics.git",
+        "state": {
+          "branch": null,
+          "revision": "6b24333510e9044cf4716a07bed65eeed6bc6393",
+          "version": "0.0.8"
+        }
+      },
+      {
+        "package": "X3D",
+        "repositoryURL": "https://github.com/create3000/Swift-X3D.git",
+        "state": {
+          "branch": "main",
+          "revision": "bc3f6ebc06851e99bf95719e4dc7a2cf532140ec",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}

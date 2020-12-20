@@ -1,0 +1,205 @@
+#X3D V3.3 utf8
+
+PROTO Location [
+   inputOutput SFBool animate FALSE
+   inputOutput SFFloat latitude 0
+   inputOutput SFFloat longitude 0
+]
+{
+   DEF Sphere Transform {
+      scale 0.025 0.025 0.025
+      children Shape {
+         appearance Appearance {
+            material DEF Material Material {
+               ambientIntensity 0.712006
+               diffuseColor 1 1 0.4
+               specularColor 1 1 0.3
+               shininess 0.81
+            }
+         }
+         geometry Sphere { }
+      }
+   }
+   
+   DEF Timer TimeSensor {
+      enabled IS animate
+      cycleInterval 1.4
+      loop TRUE
+   }
+   
+   DEF Interpolator ColorInterpolator {
+      key [0, 0.5, 1]
+      keyValue [1 1 0.4, 1 0.2 0.2, 1 1 0.4]
+   }
+   
+   Script {
+      inputOutput SFBool animate IS animate
+      inputOutput SFFloat latitude IS latitude
+      inputOutput SFFloat longitude IS longitude
+      
+      initializeOnly SFNode sphere USE Sphere
+      initializeOnly SFNode interpolator USE Interpolator
+      
+      url "ecmascript:
+function initialize ()
+{
+   eventsProcessed ()
+}
+
+function set_animate (value, time)
+{
+   interpolator .set_fraction = 0;
+}
+
+function eventsProcessed ()
+{
+   sphere .translation = getPosition (latitude, longitude);
+}
+
+function getPosition (latitude, longitude)
+{
+   var cosLat = Math.cos (latitude  * Math .PI / 180);
+   var sinLat = Math.sin (latitude  * Math .PI / 180);
+   var cosLon = Math.cos (longitude * Math .PI / 180);
+   var sinLon = Math.sin (longitude * Math .PI / 180);
+
+   return new SFVec3f (cosLat * sinLon, sinLat, cosLat * cosLon);
+}
+"
+   }
+   
+   ROUTE Timer.fraction_changed TO Interpolator.set_fraction
+   ROUTE Interpolator.value_changed TO Material.set_diffuseColor
+}
+
+PROTO LocationGroup [
+   inputOutput MFNode locations [ ]
+]
+{
+   Group {
+      children [
+         DEF VP1 Viewpoint { }
+         DEF VP2 Viewpoint { }
+         Group {
+            children IS locations
+         }
+      ]
+   }
+   
+   Script {
+      inputOutput MFNode locations IS locations
+      initializeOnly SFNode vp1 USE VP1
+      initializeOnly SFNode vp2 USE VP2
+
+      url "ecmascript:
+function initialize ()
+{
+   set_locations (locations, 0);
+}
+
+function set_locations (value, time)
+{
+   if (value .length == 0)
+      return;
+
+   for (var i = 0; i < value .length - 1; ++ i)
+      value [i] .animate = false;
+   
+   var current  = value [value .length - 1];
+   var position = getPosition (current .latitude, current .longitude);
+   var vp       = vp1 .isBound ? vp2 : vp1;
+   
+   current .animate = true;
+   vp .position     = position .multiply (3);
+   vp .orientation  = getOrientation (vp .position, new SFVec3f ());
+   vp .set_bind     = true;
+}
+
+function getPosition (latitude, longitude)
+{
+   var cosLat = Math.cos (latitude  * Math .PI / 180);
+   var sinLat = Math.sin (latitude  * Math .PI / 180);
+   var cosLon = Math.cos (longitude * Math .PI / 180);
+   var sinLon = Math.sin (longitude * Math .PI / 180);
+
+   return new SFVec3f (cosLat * sinLon, sinLat, cosLat * cosLon);
+}
+
+function getOrientation (fromPoint, toPoint)
+{
+   var yAxis = new SFVec3f (0, 1, 0);
+   var zAxis = new SFVec3f (0, 0, 1);
+
+   var direction = fromPoint .subtract (toPoint);
+   var rotation  = new SFRotation (zAxis, direction);
+   var cameraUp  = rotation .multVec (yAxis);
+   var N1        = direction .cross (cameraUp);
+   var N2        = direction .cross (yAxis);
+   var straight  = new SFRotation (N1, N2);
+
+   return rotation .multiply (straight);
+}
+"
+   }
+}
+
+NavigationInfo {
+   type "EXAMINE"
+   transitionType "ANIMATE"
+   transitionTime 3
+}
+
+Viewpoint {
+   position 0 0 3
+}
+
+DEF StarField Inline {
+   url "starfield.x3d"
+}
+
+DEF Atmosphere Billboard {
+   axisOfRotation 0 0 0
+   children Transform {
+      scale 1.14 1.14 1.14
+      children Shape {
+         appearance Appearance {
+            material Material {
+               transparency 0.6
+            }
+            texture ImageTexture {
+               url "athmosphere.png"
+            }
+         }
+         geometry Rectangle2D { }
+      }
+   }
+}
+
+DEF Earth Transform {
+   children Shape {
+      appearance Appearance {
+         material Material {
+            ambientIntensity 0.712006
+            diffuseColor 1 1 1
+            specularColor 1 1 0.7
+            shininess 0.81
+         }
+         texture ImageTexture {
+            url "world.topo.png"
+         }
+      }
+      geometry Sphere { }
+   }
+}
+
+DEF Locations LocationGroup { }
+
+DEF EnterWorldScript Script {
+  url "ecmascript:
+function initialize ()
+{
+   Browser .setBrowserOption (\"Shading\",          \"PHONG\");
+   Browser .setBrowserOption (\"PrimitiveQuality\", \"HIGH\");
+}
+"
+}
