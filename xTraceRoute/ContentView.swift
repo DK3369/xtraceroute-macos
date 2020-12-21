@@ -127,7 +127,7 @@ struct ContentView :
          {
             return
          }
-
+         
          guard let city = info ["city"],
                let loc  = info ["loc"] else { return }
          
