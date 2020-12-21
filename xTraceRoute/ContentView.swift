@@ -160,17 +160,6 @@ struct ContentView :
    }
 }
 
-struct IPInfo :
-   Decodable
-{
-   let ip : String
-   let city : String
-   let region : String
-   let country : String
-   let loc : String
-   let org : String
-}
-
 internal extension FileHandle
 {
    func readLine (delimiter : String = "\n", encoding : String .Encoding = .utf8, chunkSize : Int = 1) -> String?
