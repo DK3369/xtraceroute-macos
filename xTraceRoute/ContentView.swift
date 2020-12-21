@@ -123,15 +123,18 @@ struct ContentView :
          let fh   = pipe .fileHandleForReading
          let json = fh .readDataToEndOfFile ()
                   
-         guard let info = try? JSONSerialization .jsonObject (with: json, options: [ ]) as? [String : String] else
+         guard let info = try? JSONSerialization .jsonObject (with: json, options: [ ]) as? [String : Any] else
          {
             return
          }
          
-         guard let city = info ["city"],
-               let loc  = info ["loc"] else { return }
+         guard let loc = info ["loc"]  as? String else { return }
          
-         debugPrint (city, loc)
+         let city    = info ["city"]    as? String ?? ""
+         let region  = info ["region"]  as? String ?? ""
+         let country = info ["country"] as? String ?? ""
+         
+         debugPrint (city, region, country, loc)
          
          DispatchQueue .main .sync
          {
