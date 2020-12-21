@@ -130,9 +130,9 @@ struct ContentView :
          
          guard let loc = info ["loc"]  as? String else { return }
          
-         let city    = info ["city"]    as? String ?? ""
-         let region  = info ["region"]  as? String ?? ""
-         let country = info ["country"] as? String ?? ""
+         let city    = info ["city"]    as? String ?? "Unkown"
+         let region  = info ["region"]  as? String ?? "Unkown"
+         let country = info ["country"] as? String ?? "Unkown"
          
          debugPrint (city, region, country, loc)
          
