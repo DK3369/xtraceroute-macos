@@ -57,6 +57,7 @@
 		8B61F956258E918100D12E4A /* world.topo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world.topo.png; sourceTree = "<group>"; };
 		8B61F95B258EB3F000D12E4A /* starfield.x3d */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = starfield.x3d; sourceTree = "<group>"; };
 		8B61F964258EB63500D12E4A /* athmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = athmosphere.png; sourceTree = "<group>"; };
+		8B61F9712590C57300D12E4A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +89,7 @@
 		8B61F8FC258D2F8A00D12E4A = {
 			isa = PBXGroup;
 			children = (
+				8B61F9712590C57300D12E4A /* README.md */,
 				8B61F907258D2F8A00D12E4A /* xTraceRoute */,
 				8B61F91D258D2F8D00D12E4A /* xTraceRouteTests */,
 				8B61F928258D2F8D00D12E4A /* xTraceRouteUITests */,
