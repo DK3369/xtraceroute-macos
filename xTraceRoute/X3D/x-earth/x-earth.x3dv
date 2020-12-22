@@ -4,7 +4,7 @@ Viewpoint {
    position 0 0 3
 }
 
-Shape {
+DEF Earth Shape {
    appearance Appearance {
       texture ImageTexture {
          url "x-landmask4K.png"
@@ -91,14 +91,4 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
       }
    }
    geometry Sphere { }
-}
-
-DEF EnterWorldScript Script {
-  url "ecmascript:
-function initialize ()
-{
-   Browser .setBrowserOption (\"Shading\",          \"PHONG\");
-   Browser .setBrowserOption (\"PrimitiveQuality\", \"HIGH\");
-}
-"
 }

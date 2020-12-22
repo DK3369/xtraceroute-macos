@@ -1,33 +1,89 @@
 #X3D V3.3 utf8
 
-Background {
-   
-}
-
-DEF Initial Viewpoint {
-   position 0 0 3
-}
-
-DEF Atmosphere Billboard {
-   axisOfRotation 0 0 0
-   children Transform {
-      translation -0.02 0 0
-      scale 1.14 1.14 1.14
-      children Shape {
-         appearance Appearance {
-            material Material {
-               diffuseColor 0.5 0.8 1
-               transparency 0.2
+LayerSet {
+   order [1, 2]
+   activeLayer 2
+   layers [
+      DEF Background Layer {
+         isPickable FALSE
+         children [
+            NavigationInfo {
+               headlight FALSE
+               type "EXAMINE"
             }
-            texture ImageTexture {
-               url "x-athmosphere.png"
+            Background {
+               skyColor 0 0 0.05
             }
-         }
-         geometry Rectangle2D { }
+            DEF DarkBlue DirectionalLight {
+               color 0 0 0.05
+               intensity 1
+               direction 0 0 -1
+            }
+            DEF Magenta PointLight {
+               color 1 0 1
+               intensity 0.4
+               location 4 -4 2
+            }
+            DEF LightBlue PointLight {
+               color 0 1 1
+               intensity 0.1
+               location -6 4 4
+            }
+            Transform {
+               children Shape {
+                  appearance Appearance {
+                     material Material {
+                        diffuseColor 1 1 1
+                     }
+                  }
+                  geometry Rectangle2D {
+                     size 1000 1000
+                  }
+               }
+            }
+         ]
       }
-   }
+      DEF Scene Layer {
+         children [
+            NavigationInfo {
+               headlight FALSE
+            }
+            DEF Initial Viewpoint {
+               position 0 0 3
+            }
+            DEF Atmosphere Billboard {
+               axisOfRotation 0 0 0
+               children Transform {
+                  translation -0.02 0.02 0
+                  scale 1.12 1.12 1.12
+                  children Shape {
+                     appearance Appearance {
+                        material Material {
+                           emissiveColor 0.8 0.9 1
+                           transparency 0
+                        }
+                        texture ImageTexture {
+                           url "x-athmosphere.png"
+                        }
+                     }
+                     geometry Rectangle2D { }
+                  }
+               }
+            }
+            DEF Earth Inline {
+               url "x-earth.x3dv"
+            }
+         ]
+      }
+   ]
 }
 
-DEF Earth Inline {
-   url "x-earth.x3dv"
+DEF EnterWorldScript Script {
+  url "ecmascript:
+function initialize ()
+{
+   Browser .setBrowserOption (\"Shading\",          \"PHONG\");
+   Browser .setBrowserOption (\"PrimitiveQuality\", \"HIGH\");
+}
+"
 }
