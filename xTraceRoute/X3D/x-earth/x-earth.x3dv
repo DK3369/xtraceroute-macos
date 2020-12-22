@@ -64,25 +64,25 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
       const auto c1 = float3 (0.5, 0, 1) * 0.5;
       const auto l1 = normalize (float3 (-1, 0, 1));
       const auto a1 = max (dot (N, l1), 0.0);
-      const auto r1 = c1 .rgb * a1;
+      const auto r1 = c1 * a1;
       
       // Red
       const auto c2 = float3 (1, 0, 0.5) * 0.1;
       const auto l2 = normalize (float3 (1, 0, 1));
       const auto a2 = max (dot (N, l2), 0.0);
-      const auto r2 = c2 .rgb * a2;
+      const auto r2 = c2 * a2;
       
       // Shadow
       const auto c3 = float3 (1);
       const auto l3 = normalize (float3 (-1, -1, 1));
       const auto a3 = max (1 - pow (dot (N, l3), 3), 0.0);
-      const auto r3 = c3 .rgb * a3;
+      const auto r3 = c3 * a3;
       
       // Athmosphere
       const auto c4 = float3 (1);
       const auto l4 = normalize (float3 (0, 0, 1));
       const auto a4 = max (1 - pow (dot (N, l4) * 1.7, 2), 0.0);
-      const auto r4 = c4 .rgb * a4;
+      const auto r4 = c4 * a4;
 
       return float4 ((r1 + r2) * r3 + r4, 1);
    }

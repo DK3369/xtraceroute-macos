@@ -297,7 +297,7 @@ LayerSet {
             DEF Earth Inline {
                url "x-earth.x3dv"
             }
-            DEF Locations LocationGroup { locations Location { } }
+            DEF Locations LocationGroup { }
          ]
       }
    ]
