@@ -9,7 +9,7 @@ import Cocoa
 import SwiftUI
 
 @main
-class AppDelegate :
+internal final class AppDelegate :
    NSObject,
    NSApplicationDelegate
 {
@@ -46,4 +46,3 @@ class AppDelegate :
        return true
    }
 }
-

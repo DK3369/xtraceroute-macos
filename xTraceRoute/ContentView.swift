@@ -8,7 +8,7 @@
 import SwiftUI
 import X3D
 
-struct ContentView_Previews : PreviewProvider
+internal struct ContentView_Previews : PreviewProvider
 {
    static var previews : some View
    {
@@ -16,7 +16,7 @@ struct ContentView_Previews : PreviewProvider
    }
 }
 
-struct ContentView :
+internal struct ContentView :
    View
 {
    @State private var hostname : String = ""
