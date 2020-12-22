@@ -27,6 +27,7 @@ class AppDelegate :
                          defer: false)
       
       window .title                = "xTraceRoute"
+      window .tabbingMode          = .disallowed
       window .isReleasedWhenClosed = false
       window .contentView          = NSHostingView (rootView: contentView)
       
