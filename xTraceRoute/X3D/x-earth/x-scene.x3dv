@@ -1,5 +1,225 @@
 #X3D V3.3 utf8
 
+PROTO Location [
+   inputOutput SFBool animate FALSE
+   inputOutput SFFloat latitude 0
+   inputOutput SFFloat longitude 0
+]
+{
+   DEF Sphere Transform {
+      scale 0.01 0.01 0.01
+      children Shape {
+         appearance Appearance {
+            material DEF Material Material {
+               ambientIntensity 0.712006
+               diffuseColor 1 0.4 1
+               specularColor 1 0.3 1
+               shininess 0.81
+            }
+         }
+         geometry Sphere { }
+      }
+   }
+   
+   DEF Timer TimeSensor {
+      enabled FALSE
+      cycleInterval 1.4
+      loop TRUE
+   }
+   
+   Script {
+      inputOutput SFBool animate IS animate
+      inputOutput SFFloat latitude IS latitude
+      inputOutput SFFloat longitude IS longitude
+      
+      initializeOnly SFNode sphere USE Sphere
+      
+      url "ecmascript:
+function initialize ()
+{
+   eventsProcessed ()
+}
+
+function set_animate (value, time)
+{
+}
+
+function eventsProcessed ()
+{
+   sphere .translation = getPosition (latitude, longitude);
+}
+
+function getPosition (latitude, longitude)
+{
+   var cosLat = Math.cos (latitude  * Math .PI / 180);
+   var sinLat = Math.sin (latitude  * Math .PI / 180);
+   var cosLon = Math.cos (longitude * Math .PI / 180);
+   var sinLon = Math.sin (longitude * Math .PI / 180);
+
+   return new SFVec3f (cosLat * sinLon, sinLat, cosLat * cosLon);
+}
+"
+   }
+}
+
+PROTO Route [
+   inputOutput SFNode fromLocation NULL
+   inputOutput SFNode toLocation NULL
+]
+{
+   Shape {
+      appearance Appearance {
+         material DEF Material Material {
+            emissiveColor 1 0.4 1
+         }
+      }
+      geometry DEF Lines LineSet {
+         vertexCount 30
+         coord DEF Coord Coordinate { }
+      }
+   }
+   
+   Script {
+      inputOutput SFNode fromLocation IS fromLocation
+      inputOutput SFNode toLocation IS toLocation
+      initializeOnly SFNode coord USE Coord
+
+      url "ecmascript:
+function initialize ()
+{
+   eventsProcessed ();
+}
+
+function eventsProcessed ()
+{
+   coord .point .length = 0;
+   
+   var fLat = fromLocation .latitude;
+   var fLon = fromLocation .longitude;
+   var tLat = toLocation .latitude;
+   var tLon = toLocation .longitude;
+   
+   if (tLon - fLon > 180) fLon += 360;
+
+   for (var i = 0; i < 30; ++ i)
+   {
+      var t   = i / 29;
+      var lat = lerp (fLat, tLat, t);
+      var lon = lerp (fLon, tLon, t);
+      var pos = getPosition (lat, lon);
+      var s   = (1 - Math .pow (t * 2 - 1, 2)) * 0.2 + 1;
+      
+      coord .point [i] = pos .multiply (s);
+   }
+}
+
+function getPosition (latitude, longitude)
+{
+   var cosLat = Math.cos (latitude  * Math .PI / 180);
+   var sinLat = Math.sin (latitude  * Math .PI / 180);
+   var cosLon = Math.cos (longitude * Math .PI / 180);
+   var sinLon = Math.sin (longitude * Math .PI / 180);
+
+   return new SFVec3f (cosLat * sinLon, sinLat, cosLat * cosLon);
+}
+
+function lerp (source, destination, t)
+{
+   return source + t * (destination - source);
+}
+"
+   }
+}
+
+PROTO LocationGroup [
+   inputOutput MFNode locations [ ]
+]
+{
+   Group {
+      children [
+         DEF VP1 Viewpoint { }
+         DEF VP2 Viewpoint { }
+         DEF Locations Group {
+            children IS locations
+         }
+         DEF Routes Group { }
+      ]
+   }
+   
+   Script {
+      inputOutput MFNode locations IS locations
+      initializeOnly SFNode vp1 USE VP1
+      initializeOnly SFNode vp2 USE VP2
+      initializeOnly SFNode routes USE Routes
+
+      url "ecmascript:
+function initialize ()
+{
+   set_locations (locations, 0);
+}
+
+function set_locations (value, time)
+{
+   if (value .length == 0)
+   {
+      routes .children .length = 0;
+   }
+   else
+   {
+      for (var i = 0; i < value .length - 1; ++ i)
+         value [i] .animate = false;
+      
+      var current  = value [value .length - 1];
+      var position = getPosition (current .latitude, current .longitude);
+      var vp       = vp1 .isBound ? vp2 : vp1;
+      
+      current .animate = true;
+      vp .position     = position .multiply (3);
+      vp .orientation  = getOrientation (vp .position, new SFVec3f ());
+      vp .set_bind     = true;
+      
+      for (var i = routes .children .length; i < value .length - 1; ++ i)
+      {
+         var previous = value [i];
+         var current  = value [i + 1];
+         var route    = Browser .currentScene .createProto ('Route');
+         
+         route .fromLocation = previous;
+         route .toLocation   = current;
+         
+         routes .children [i] = route;
+      }
+   }
+}
+
+function getPosition (latitude, longitude)
+{
+   var cosLat = Math.cos (latitude  * Math .PI / 180);
+   var sinLat = Math.sin (latitude  * Math .PI / 180);
+   var cosLon = Math.cos (longitude * Math .PI / 180);
+   var sinLon = Math.sin (longitude * Math .PI / 180);
+
+   return new SFVec3f (cosLat * sinLon, sinLat, cosLat * cosLon);
+}
+
+function getOrientation (fromPoint, toPoint)
+{
+   var yAxis = new SFVec3f (0, 1, 0);
+   var zAxis = new SFVec3f (0, 0, 1);
+
+   var direction = fromPoint .subtract (toPoint);
+   var rotation  = new SFRotation (zAxis, direction);
+   var cameraUp  = rotation .multVec (yAxis);
+   var N1        = direction .cross (cameraUp);
+   var N2        = direction .cross (yAxis);
+   var straight  = new SFRotation (N1, N2);
+
+   return rotation .multiply (straight);
+}
+"
+   }
+}
+
 LayerSet {
    order [1, 2]
    activeLayer 2
@@ -46,7 +266,10 @@ LayerSet {
       DEF Scene Layer {
          children [
             NavigationInfo {
-               headlight FALSE
+               type "EXAMINE"
+               headlight TRUE
+               transitionType "LINEAR"
+               transitionTime 3
             }
             DEF Initial Viewpoint {
                position 0 0 3
@@ -59,6 +282,7 @@ LayerSet {
                   children Shape {
                      appearance Appearance {
                         material Material {
+                           diffuseColor 0 0 0
                            emissiveColor 0.8 0.9 1
                            transparency 0
                         }
@@ -73,6 +297,7 @@ LayerSet {
             DEF Earth Inline {
                url "x-earth.x3dv"
             }
+            DEF Locations LocationGroup { locations Location { } }
          ]
       }
    ]
