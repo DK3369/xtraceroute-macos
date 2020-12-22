@@ -1,0 +1,104 @@
+#X3D V3.3 utf8
+
+Viewpoint {
+   position 0 0 3
+}
+
+Shape {
+   appearance Appearance {
+      texture ImageTexture {
+         url "x-landmask4K.png"
+      }
+      shaders PackagedShader {
+         language "MSL"
+         url "data:x-shader/x-metal,
+#include <metal_stdlib>
+
+using namespace metal;
+
+struct x3d_VertexOut
+{
+   float4 texCoord;
+   float3 normal;
+   float4 position [[position]];
+};
+
+vertex
+x3d_VertexOut
+vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
+              const device x3d_VertexIn* vertices [[ buffer (0) ]],
+              constant x3d_Uniforms & uniforms    [[ buffer (1) ]])
+{
+   x3d_VertexIn  in  = vertices [vertexId];
+   x3d_VertexOut out = x3d_VertexOut ();
+   
+   out .texCoord = uniforms .textureMatrices [0] * in .texCoords [0];
+   out .normal   = uniforms .normalMatrix * in .normal;
+   out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
+   
+   return out;
+}
+
+constant float uDimension = 260;
+constant float vDimension = 130;
+constant float pointSize  = 0.25;
+
+fragment
+float4
+fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
+                const texture2d <float> texture0 [[ texture (0) ]],
+                const sampler sampler0           [[ sampler (0) ]])
+{
+   const auto texCoord = in .texCoord .xy / in .texCoord .w;
+   const auto mask     = texture0 .sample (sampler0, texCoord);
+   const auto d        = pow (abs (in .position .z), 2);
+   const auto s        = 1 / 1 - abs (floor (texCoord .y * vDimension) / vDimension * 2 - 1);
+   const auto x        = fract (texCoord .x * uDimension * s) < pointSize * d;
+   const auto y        = fract (texCoord .y * vDimension)     < pointSize * d;
+
+   if (mask .r < 0.1 || !(x && y))
+   {
+      const auto N = normalize (in .normal);
+      
+      // Lila
+      const auto c1 = float3 (0.5, 0, 1) * 0.5;
+      const auto l1 = normalize (float3 (-1, 0, 1));
+      const auto a1 = max (dot (N, l1), 0.0);
+      const auto r1 = c1 .rgb * a1;
+      
+      // Red
+      const auto c2 = float3 (1, 0, 0.5) * 0.1;
+      const auto l2 = normalize (float3 (1, 0, 1));
+      const auto a2 = max (dot (N, l2), 0.0);
+      const auto r2 = c2 .rgb * a2;
+      
+      // Shadow
+      const auto c3 = float3 (1);
+      const auto l3 = normalize (float3 (-1, -1, 1));
+      const auto a3 = max (1 - pow (dot (N, l3), 3), 0.0);
+      const auto r3 = c3 .rgb * a3;
+
+      return float4 ((r1 + r2) * r3, 1);
+   }
+   else
+   {
+      const auto color = float4 (0.6, 0.3, 1, 1);
+      
+      return color;
+   }
+}
+"
+      }
+   }
+   geometry Sphere { }
+}
+
+DEF EnterWorldScript Script {
+  url "ecmascript:
+function initialize ()
+{
+   Browser .setBrowserOption (\"Shading\",          \"PHONG\");
+   Browser .setBrowserOption (\"PrimitiveQuality\", \"HIGH\");
+}
+"
+}

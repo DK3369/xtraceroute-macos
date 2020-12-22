@@ -15,11 +15,15 @@
 		8B61F91F258D2F8D00D12E4A /* xTraceRouteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61F91E258D2F8D00D12E4A /* xTraceRouteTests.swift */; };
 		8B61F92A258D2F8D00D12E4A /* xTraceRouteUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61F929258D2F8D00D12E4A /* xTraceRouteUITests.swift */; };
 		8B61F93C258D2FBE00D12E4A /* X3D in Frameworks */ = {isa = PBXBuildFile; productRef = 8B61F93B258D2FBE00D12E4A /* X3D */; };
-		8B61F947258E740400D12E4A /* Earth.x3dv in Resources */ = {isa = PBXBuildFile; fileRef = 8B61F946258E740400D12E4A /* Earth.x3dv */; };
+		8B61F947258E740400D12E4A /* scene.x3dv in Resources */ = {isa = PBXBuildFile; fileRef = 8B61F946258E740400D12E4A /* scene.x3dv */; };
 		8B61F957258E918200D12E4A /* world.topo.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B61F956258E918100D12E4A /* world.topo.png */; };
 		8B61F95C258EB3F000D12E4A /* starfield.x3d in Resources */ = {isa = PBXBuildFile; fileRef = 8B61F95B258EB3F000D12E4A /* starfield.x3d */; };
 		8B61F965258EB63500D12E4A /* athmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B61F964258EB63500D12E4A /* athmosphere.png */; };
 		8B61F9732590C7FB00D12E4A /* xTraceRoute.png in Resources */ = {isa = PBXBuildFile; fileRef = 8B61F9722590C7FB00D12E4A /* xTraceRoute.png */; };
+		8BF827152592659A00437062 /* x-landmask4K.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BF827122592659A00437062 /* x-landmask4K.png */; };
+		8BF827162592659A00437062 /* x-earth.x3dv in Resources */ = {isa = PBXBuildFile; fileRef = 8BF827132592659A00437062 /* x-earth.x3dv */; };
+		8BF827172592659A00437062 /* x-scene.x3dv in Resources */ = {isa = PBXBuildFile; fileRef = 8BF827142592659A00437062 /* x-scene.x3dv */; };
+		8BF82720259268F600437062 /* x-athmosphere.png in Resources */ = {isa = PBXBuildFile; fileRef = 8BF8271F259268F600437062 /* x-athmosphere.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,12 +58,16 @@
 		8B61F925258D2F8D00D12E4A /* xTraceRouteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = xTraceRouteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B61F929258D2F8D00D12E4A /* xTraceRouteUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = xTraceRouteUITests.swift; sourceTree = "<group>"; };
 		8B61F92B258D2F8D00D12E4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8B61F946258E740400D12E4A /* Earth.x3dv */ = {isa = PBXFileReference; lastKnownFileType = text; path = Earth.x3dv; sourceTree = "<group>"; };
+		8B61F946258E740400D12E4A /* scene.x3dv */ = {isa = PBXFileReference; lastKnownFileType = text; path = scene.x3dv; sourceTree = "<group>"; };
 		8B61F956258E918100D12E4A /* world.topo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = world.topo.png; sourceTree = "<group>"; };
 		8B61F95B258EB3F000D12E4A /* starfield.x3d */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = starfield.x3d; sourceTree = "<group>"; };
 		8B61F964258EB63500D12E4A /* athmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = athmosphere.png; sourceTree = "<group>"; };
 		8B61F9712590C57300D12E4A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		8B61F9722590C7FB00D12E4A /* xTraceRoute.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = xTraceRoute.png; sourceTree = "<group>"; };
+		8BF827122592659A00437062 /* x-landmask4K.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "x-landmask4K.png"; sourceTree = "<group>"; };
+		8BF827132592659A00437062 /* x-earth.x3dv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "x-earth.x3dv"; sourceTree = "<group>"; };
+		8BF827142592659A00437062 /* x-scene.x3dv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "x-scene.x3dv"; sourceTree = "<group>"; };
+		8BF8271F259268F600437062 /* x-athmosphere.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "x-athmosphere.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,12 +162,32 @@
 		8B61F960258EB3F900D12E4A /* X3D */ = {
 			isa = PBXGroup;
 			children = (
-				8B61F946258E740400D12E4A /* Earth.x3dv */,
+				8BF827112592657700437062 /* x-earth */,
+				8BF827102592656200437062 /* earth */,
+			);
+			path = X3D;
+			sourceTree = "<group>";
+		};
+		8BF827102592656200437062 /* earth */ = {
+			isa = PBXGroup;
+			children = (
+				8B61F946258E740400D12E4A /* scene.x3dv */,
 				8B61F95B258EB3F000D12E4A /* starfield.x3d */,
 				8B61F956258E918100D12E4A /* world.topo.png */,
 				8B61F964258EB63500D12E4A /* athmosphere.png */,
 			);
-			path = X3D;
+			path = earth;
+			sourceTree = "<group>";
+		};
+		8BF827112592657700437062 /* x-earth */ = {
+			isa = PBXGroup;
+			children = (
+				8BF827142592659A00437062 /* x-scene.x3dv */,
+				8BF827132592659A00437062 /* x-earth.x3dv */,
+				8BF827122592659A00437062 /* x-landmask4K.png */,
+				8BF8271F259268F600437062 /* x-athmosphere.png */,
+			);
+			path = "x-earth";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,10 +302,14 @@
 				8B61F9732590C7FB00D12E4A /* xTraceRoute.png in Resources */,
 				8B61F913258D2F8C00D12E4A /* Main.storyboard in Resources */,
 				8B61F957258E918200D12E4A /* world.topo.png in Resources */,
-				8B61F947258E740400D12E4A /* Earth.x3dv in Resources */,
+				8BF827172592659A00437062 /* x-scene.x3dv in Resources */,
+				8B61F947258E740400D12E4A /* scene.x3dv in Resources */,
+				8BF82720259268F600437062 /* x-athmosphere.png in Resources */,
 				8B61F910258D2F8C00D12E4A /* Preview Assets.xcassets in Resources */,
 				8B61F95C258EB3F000D12E4A /* starfield.x3d in Resources */,
+				8BF827162592659A00437062 /* x-earth.x3dv in Resources */,
 				8B61F965258EB63500D12E4A /* athmosphere.png in Resources */,
+				8BF827152592659A00437062 /* x-landmask4K.png in Resources */,
 				8B61F90D258D2F8C00D12E4A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

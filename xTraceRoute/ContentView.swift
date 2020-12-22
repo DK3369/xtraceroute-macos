@@ -22,7 +22,7 @@ internal struct ContentView :
    @State private var hostname : String = ""
    @State private var running  : Bool = false
    
-   private var browser = X3DBrowser (url: [Bundle .main .url (forResource: "Earth", withExtension: "x3dv")!], parameter: [])
+   internal private(set) var browser = X3DBrowser (url: [Bundle .main .url (forResource: "x-scene", withExtension: "x3dv")!], parameter: [])
    
    var body : some View
    {

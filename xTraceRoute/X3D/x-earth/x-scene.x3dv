@@ -1,0 +1,33 @@
+#X3D V3.3 utf8
+
+Background {
+   
+}
+
+DEF Initial Viewpoint {
+   position 0 0 3
+}
+
+DEF Atmosphere Billboard {
+   axisOfRotation 0 0 0
+   children Transform {
+      translation -0.02 0 0
+      scale 1.14 1.14 1.14
+      children Shape {
+         appearance Appearance {
+            material Material {
+               diffuseColor 0.5 0.8 1
+               transparency 0.2
+            }
+            texture ImageTexture {
+               url "x-athmosphere.png"
+            }
+         }
+         geometry Rectangle2D { }
+      }
+   }
+}
+
+DEF Earth Inline {
+   url "x-earth.x3dv"
+}
