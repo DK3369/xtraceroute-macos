@@ -15,7 +15,7 @@ class AppDelegate :
 {
    var window : NSWindow!
    
-   func applicationDidFinishLaunching (_ aNotification : Notification)
+   internal final func applicationDidFinishLaunching (_ aNotification : Notification)
    {
       // Create the SwiftUI view that provides the window contents.
       let contentView = ContentView ()
@@ -35,9 +35,14 @@ class AppDelegate :
       window .makeKeyAndOrderFront (nil)
    }
    
-   func applicationWillTerminate (_ aNotification : Notification)
+   internal final func applicationWillTerminate (_ aNotification : Notification)
    {
       // Insert code here to tear down your application
+   }
+
+   internal final func applicationShouldTerminateAfterLastWindowClosed (_ sender : NSApplication) -> Bool
+   {
+       return true
    }
 }
 
