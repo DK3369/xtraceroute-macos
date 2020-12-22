@@ -13,7 +13,7 @@ class AppDelegate :
    NSObject,
    NSApplicationDelegate
 {
-   var window : NSWindow!
+   final private var window : NSWindow!
    
    internal final func applicationDidFinishLaunching (_ aNotification : Notification)
    {
