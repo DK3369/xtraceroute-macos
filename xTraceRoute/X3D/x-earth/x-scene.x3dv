@@ -4,21 +4,81 @@ PROTO Location [
    inputOutput SFBool animate FALSE
    inputOutput SFFloat latitude 0
    inputOutput SFFloat longitude 0
+   inputOutput SFVec3f scale 0.01 0.01 0.01
 ]
 {
-   DEF Sphere Transform {
-      scale 0.01 0.01 0.01
-      children Shape {
-         appearance Appearance {
-            material DEF Material Material {
-               ambientIntensity 0.712006
-               diffuseColor 1 0.4 1
-               specularColor 1 0.3 1
-               shininess 0.81
+   DEF Transform Transform {
+      scale IS scale
+      children [
+         DEF TouchGroup Group {
+            children [
+               DEF Touch TouchSensor { }
+               DEF Sphere Transform {
+                  children [
+                     Shape {
+                        appearance Appearance {
+                           material Material {
+                              ambientIntensity 0.712006
+                              diffuseColor 1 0.4 1
+                              specularColor 1 0.3 1
+                              shininess 0.81
+                           }
+                        }
+                        geometry Sphere { }
+                     }
+                     DEF Hidden Transform {
+                        translation 0 0 0.01
+                        children Shape {
+                           appearance Appearance {
+                              material Material {
+                                 transparency 1
+                              }
+                           }
+                           geometry Disk2D {
+                              innerRadius 0
+                              outerRadius 2
+                           }
+                        }
+                     }
+                  ]
+               }
+            ]
+         }
+         DEF AnimatedCircle Switch {
+            whichChoice 0
+            children [
+               Shape {
+                  appearance Appearance {
+                     material Material {
+                        transparency 0
+                     }
+                  }
+                  geometry Disk2D {
+                     outerRadius 6
+                  }
+               }
+            ]
+         }
+         DEF Line Shape {
+            geometry LineSet {
+               vertexCount 3
+               color Color {
+                  color [
+                     0 0.5 1,
+                     0 0.5 1,
+                     0 1 1,
+                  ]
+               }
+               coord Coordinate {
+                  point [
+                     0 0 0,
+                     0 0 5,
+                     0 0 7,
+                  ]
+               }
             }
          }
-         geometry Sphere { }
-      }
+      ]
    }
    
    DEF Timer TimeSensor {
@@ -31,9 +91,9 @@ PROTO Location [
       inputOutput SFBool animate IS animate
       inputOutput SFFloat latitude IS latitude
       inputOutput SFFloat longitude IS longitude
-      
-      initializeOnly SFNode sphere USE Sphere
-      
+      initializeOnly SFNode transform USE Transform
+      initializeOnly SFNode circle USE AnimatedCircle
+
       url "ecmascript:
 function initialize ()
 {
@@ -42,11 +102,16 @@ function initialize ()
 
 function set_animate (value, time)
 {
+   circle .whichChoice = value - 1;
 }
 
 function eventsProcessed ()
 {
-   sphere .translation = getPosition (latitude, longitude);
+   const zAxis    = new SFVec3f (0, 0, 1);
+   const position = getPosition (latitude, longitude);
+
+   transform .translation = position;
+   transform .rotation    = new SFRotation (zAxis, position);
 }
 
 function getPosition (latitude, longitude)
@@ -297,7 +362,7 @@ LayerSet {
             DEF Earth Inline {
                url "x-earth.x3dv"
             }
-            DEF Locations LocationGroup { }
+            DEF Locations LocationGroup { locations Location { } }
          ]
       }
    ]

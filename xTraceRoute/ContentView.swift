@@ -19,8 +19,9 @@ internal struct ContentView_Previews : PreviewProvider
 internal struct ContentView :
    View
 {
-   @State private var hostname : String = ""
-   @State private var running  : Bool = false
+   @State private var hostname     : String = ""
+   @State private var running      : Bool = false
+   @State private var lastLocation : String = ""
    
    internal private(set) var browser = X3DBrowser (url: [Bundle .main .url (forResource: "x-scene", withExtension: "x3dv")!], parameter: [])
    
@@ -102,7 +103,11 @@ internal struct ContentView :
             ipinfo (matches [1])
          }
          
-         DispatchQueue .main .async { running = false }
+         DispatchQueue .main .async
+         {
+            running      = false
+            lastLocation = ""
+         }
       }
    }
    
@@ -129,6 +134,9 @@ internal struct ContentView :
          }
          
          guard let loc = info ["loc"]  as? String else { return }
+         guard loc != lastLocation else { return }
+         
+         lastLocation = loc
          
          let city    = info ["city"]    as? String ?? "Unkown"
          let region  = info ["region"]  as? String ?? "Unkown"
