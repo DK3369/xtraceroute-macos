@@ -50,7 +50,52 @@ PROTO Location [
                Shape {
                   appearance Appearance {
                      material Material {
-                        transparency 0
+                        transparency 1
+                     }
+                     shaders DEF CircleShader PackagedShader {
+                        inputOnly SFFloat set_fraction
+                        language "MSL"
+                        url "data:x-shader/x-metal,
+#include <metal_stdlib>
+
+using namespace metal;
+
+struct x3d_VertexOut
+{
+   float4 texCoord;
+   float4 position [[position]];
+};
+
+vertex
+x3d_VertexOut
+vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
+              const device x3d_VertexIn* vertices [[ buffer (0) ]],
+              constant x3d_Uniforms & uniforms    [[ buffer (1) ]])
+{
+   x3d_VertexIn  in  = vertices [vertexId];
+   x3d_VertexOut out = x3d_VertexOut ();
+   
+   out .texCoord = uniforms .textureMatrices [0] * in .texCoords [0];
+   out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
+   
+   return out;
+}
+
+constant float pi = 3.1415926535897932384626433832795;
+constant float fraction [[ function_constant (0) ]];
+
+fragment
+float4
+fragmentShader (const x3d_VertexOut in [[ stage_in ]])
+{
+   const auto color    = float3 (0.7, 0.8, 1);
+   const auto texCoord = in .texCoord .xy / in .texCoord .w;
+   const auto distance = length (texCoord * 2 - float2 (1, 1));
+   const auto alpha    = pow ((sin ((distance + fraction) * 4 * pi) + 1) / 2, 2);
+
+   return float4 (color, alpha);
+}
+"
                      }
                   }
                   geometry Disk2D {
@@ -82,7 +127,7 @@ PROTO Location [
    }
    
    DEF Timer TimeSensor {
-      enabled FALSE
+      enabled IS animate
       cycleInterval 1.4
       loop TRUE
    }
@@ -125,6 +170,8 @@ function getPosition (latitude, longitude)
 }
 "
    }
+   
+   ROUTE Timer.fraction_changed TO CircleShader.set_fraction
 }
 
 PROTO Route [
