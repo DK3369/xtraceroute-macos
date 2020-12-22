@@ -172,7 +172,13 @@ function set_locations (value, time)
 {
    if (value .length == 0)
    {
+      var vp = vp1 .isBound ? vp2 : vp1;
+      
       routes .children .length = 0;
+      
+      vp .position     = new SFVec3f (0, 0, 3);
+      vp .orientation  = getOrientation (vp .position, new SFVec3f ());
+      vp .set_bind     = true;
    }
    else
    {

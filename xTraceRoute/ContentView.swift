@@ -23,7 +23,7 @@ internal struct ContentView :
    @State private var running      : Bool = false
    @State private var lastLocation : String = ""
    
-   internal private(set) var browser = X3DBrowser (url: [Bundle .main .url (forResource: "x-scene", withExtension: "x3dv")!], parameter: [])
+   internal private(set) var browser = X3DBrowser ()
    
    var body : some View
    {
