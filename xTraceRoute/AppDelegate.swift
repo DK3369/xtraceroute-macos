@@ -26,7 +26,7 @@ class AppDelegate :
                          backing: .buffered,
                          defer: false)
       
-      window .title                = "xTraceRoute"
+      window .title                = Bundle .main .infoDictionary! ["CFBundleName"] as! String
       window .tabbingMode          = .disallowed
       window .isReleasedWhenClosed = false
       window .contentView          = NSHostingView (rootView: contentView)
