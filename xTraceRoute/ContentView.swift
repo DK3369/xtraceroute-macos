@@ -133,7 +133,7 @@ internal struct ContentView :
             return
          }
          
-         guard let loc = info ["loc"]  as? String else { return }
+         guard let loc = info ["loc"] as? String else { return }
          guard loc != lastLocation else { return }
          
          lastLocation = loc

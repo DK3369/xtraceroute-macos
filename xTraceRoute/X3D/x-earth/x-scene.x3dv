@@ -44,7 +44,7 @@ PROTO Location [
                }
             ]
          }
-         DEF AnimatedCircle Switch {
+         DEF PulsingPoint Switch {
             whichChoice 0
             children [
                Shape {
@@ -137,7 +137,7 @@ fragmentShader (const x3d_VertexOut in [[ stage_in ]])
       inputOutput SFFloat latitude IS latitude
       inputOutput SFFloat longitude IS longitude
       initializeOnly SFNode transform USE Transform
-      initializeOnly SFNode circle USE AnimatedCircle
+      initializeOnly SFNode point USE PulsingPoint
 
       url "ecmascript:
 function initialize ()
@@ -147,7 +147,7 @@ function initialize ()
 
 function set_animate (value, time)
 {
-   circle .whichChoice = value - 1;
+   point .whichChoice = value - 1;
 }
 
 function eventsProcessed ()
