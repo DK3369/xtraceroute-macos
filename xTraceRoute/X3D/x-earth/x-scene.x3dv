@@ -177,24 +177,82 @@ function getPosition (latitude, longitude)
 PROTO Route [
    inputOutput SFNode fromLocation NULL
    inputOutput SFNode toLocation NULL
+   inputOutput SFTime addTime 0
+   inputOutput SFTime removeTime 0
+   outputOnly  SFTime addedTime
+   outputOnly  SFTime removedTime
 ]
 {
    Shape {
       appearance Appearance {
          material DEF Material Material {
             emissiveColor 1 0.4 1
+            transparency 1
+         }
+         shaders DEF RouteShader PackagedShader {
+            inputOnly   SFFloat set_fraction
+            inputOutput SFBool  add TRUE
+            language "MSL"
+            
+            url "data:x-shader/x-metal,
+#include <metal_stdlib>
+
+using namespace metal;
+
+struct x3d_VertexOut
+{
+   float  fogDepth;
+   float4 position [[position]];
+};
+
+vertex
+x3d_VertexOut
+vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
+              const device x3d_VertexIn* vertices [[ buffer (0) ]],
+              constant x3d_Uniforms & uniforms    [[ buffer (1) ]])
+{
+   x3d_VertexIn  in  = vertices [vertexId];
+   x3d_VertexOut out = x3d_VertexOut ();
+   
+   out .fogDepth = in .fogDepth;
+   out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
+   
+   return out;
+}
+
+constant float fraction [[ function_constant (0) ]];
+constant bool  add      [[ function_constant (1) ]];
+
+fragment
+float4
+fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
+                constant x3d_Uniforms & uniforms [[ buffer (1) ]])
+{
+   const auto color  = uniforms .frontMaterial .emissiveColor;
+   const auto alpha1 = in .fogDepth < fraction ? 1.0 : 0.0;
+   const auto alpha2 = in .fogDepth < fraction ? 0.0 : 1.0;
+
+   return float4 (color, add ? alpha1 : alpha2);
+}
+"
          }
       }
       geometry DEF Lines LineSet {
          vertexCount 30
-         coord DEF Coord Coordinate { }
+         fogCoord FogCoordinate { }
+         coord Coordinate { }
       }
    }
    
+   DEF Timer TimeSensor {
+      cycleInterval 1
+   }
+   
    Script {
-      inputOutput SFNode fromLocation IS fromLocation
-      inputOutput SFNode toLocation IS toLocation
-      initializeOnly SFNode coord USE Coord
+      inputOutput    SFNode  fromLocation IS fromLocation
+      inputOutput    SFNode  toLocation IS toLocation
+      inputOutput    SFInt32 vertexCount 30
+      initializeOnly SFNode  lines USE Lines
 
       url "ecmascript:
 function initialize ()
@@ -204,7 +262,13 @@ function initialize ()
 
 function eventsProcessed ()
 {
-   coord .point .length = 0;
+   const depth = lines .fogCoord .depth;
+   const point = lines .coord .point;
+
+   depth .length = vertexCount;
+   point .length = vertexCount;
+   
+   lines .vertexCount = vertexCount;
    
    var fLat = fromLocation .latitude;
    var fLon = fromLocation .longitude;
@@ -213,15 +277,16 @@ function eventsProcessed ()
    
    if (tLon - fLon > 180) fLon += 360;
 
-   for (var i = 0; i < 30; ++ i)
+   for (var i = 0; i < vertexCount; ++ i)
    {
-      var t   = i / 29;
+      var t   = i / (vertexCount - 1);
       var lat = lerp (fLat, tLat, t);
       var lon = lerp (fLon, tLon, t);
       var pos = getPosition (lat, lon);
       var s   = (1 - Math .pow (t * 2 - 1, 2)) * 0.2 + 1;
       
-      coord .point [i] = pos .multiply (s);
+      depth [i] = t;
+      point [i] = pos .multiply (s);
    }
 }
 
@@ -241,6 +306,49 @@ function lerp (source, destination, t)
 }
 "
    }
+
+   DEF TimerScript Script {
+      inputOnly      SFBool set_active
+      inputOutput    SFTime addTime IS addTime
+      inputOutput    SFTime removeTime IS removeTime
+      outputOnly     SFTime addedTime IS addedTime
+      outputOnly     SFTime removedTime IS removedTime
+      initializeOnly SFNode timer USE Timer
+      initializeOnly SFNode shader USE RouteShader
+
+      url "ecmascript:
+function initialize ()
+{
+   if (addTime == 1)
+      set_addTime (0, 0);
+}
+
+function set_addTime (value, time)
+{
+   timer .startTime = time;
+   shader .add      = true;
+}
+
+function set_removeTime (value, time)
+{
+   timer .startTime = time;
+   shader .add      = false;
+}
+
+function set_active (value, time)
+{
+   if (value) return;
+   
+   if (shader .add)
+      addedTime = time;
+   else
+      removedTime = time;
+}
+"
+   }
+   
+   ROUTE Timer.fraction_changed TO RouteShader.set_fraction
+   ROUTE Timer.isActive TO TimerScript.set_active
 }
 
 PROTO LocationGroup [
@@ -284,6 +392,8 @@ function set_locations (value, time)
    }
    else
    {
+      const routesWereEmpty = routes .children .length == 0;
+   
       for (var i = 0; i < value .length - 1; ++ i)
          value [i] .animate = false;
       
@@ -296,16 +406,51 @@ function set_locations (value, time)
       vp .orientation  = getOrientation (vp .position, new SFVec3f ());
       vp .set_bind     = true;
       
+      // Add routes.
+      
+      if (routes .children .length)
+      {
+         const first = routes .children [0];
+         const last  = routes .children [routes .children .length - 1];
+         
+         Browser .deleteRoute (last, 'addedTime',   first, 'removeTime');
+         Browser .deleteRoute (last, 'removedTime', first, 'addTime');
+      
+         var previousRoute = last;
+      }
+      
       for (var i = routes .children .length; i < value .length - 1; ++ i)
       {
-         var previous = value [i];
-         var current  = value [i + 1];
-         var route    = Browser .currentScene .createProto ('Route');
+         var previousLocation = value [i];
+         var currentLocation  = value [i + 1];
+         var route            = Browser .currentScene .createProto ('Route');
          
-         route .fromLocation = previous;
-         route .toLocation   = current;
+         route .fromLocation = previousLocation;
+         route .toLocation   = currentLocation;
          
          routes .children [i] = route;
+         
+         if (previousRoute)
+         {
+            Browser .addRoute (previousRoute, 'addedTime',   route, 'addTime');
+            Browser .addRoute (previousRoute, 'removedTime', route, 'removeTime');
+         }
+         
+         previousRoute = route;
+      }
+      
+      if (routes .children .length)
+      {
+         const first = routes .children [0];
+         const last  = routes .children [routes .children .length - 1];
+         
+         Browser .addRoute (last, 'addedTime',   first, 'removeTime');
+         Browser .addRoute (last, 'removedTime', first, 'addTime');
+      
+         if (routesWereEmpty)
+         {
+            first .addTime = 1;
+         }
       }
    }
 }
@@ -395,7 +540,19 @@ LayerSet {
             DEF Earth Inline {
                url "x-earth.x3dv"
             }
-            DEF Locations LocationGroup { locations Location { } }
+            DEF Locations LocationGroup {
+               locations [
+                  Location { }
+                  Location {
+                     latitude 30
+                     longitude 10
+                  }
+                  Location {
+                     latitude 45
+                     longitude 300
+                  }
+               ]
+            }
          ]
       }
    ]
