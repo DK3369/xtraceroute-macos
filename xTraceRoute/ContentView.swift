@@ -44,15 +44,11 @@ internal struct ContentView :
 
       DispatchQueue .main .async { running = true }
 
-      // Clear locations
+      // Remove locations.
       
-      guard let group = try? browser .getExecutionContext () .getNamedNode (name: "Locations") else { return }
+      removeLocations ()
       
-      let locations = try! group .getField (name: "locations") as! MFNode <X3DNode>
-      
-      locations .wrappedValue = [ ]
-      
-      // Start traceroute
+      // Start traceroute.
 
       ifconfig ()
       traceroute (hostname)
@@ -165,6 +161,17 @@ internal struct ContentView :
       longitude .wrappedValue = Float (coords [1]) ?? 0
       
       locations .wrappedValue .append (location)
+   }
+   
+   internal func removeLocations ()
+   {
+      // Remove locations.
+      
+      guard let group = try? browser .getExecutionContext () .getNamedNode (name: "Locations") else { return }
+      
+      let locations = try! group .getField (name: "locations") as! MFNode <X3DNode>
+      
+      locations .wrappedValue = [ ]
    }
 }
 

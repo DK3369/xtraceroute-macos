@@ -4,12 +4,33 @@ Viewpoint {
    position 0 0 3
 }
 
+DEF Atmosphere Billboard {
+   axisOfRotation 0 0 0
+   children Transform {
+      translation -0.02 0.02 0
+      scale 1.1 1.1 1.1
+      children Shape {
+         appearance Appearance {
+            material Material {
+               diffuseColor 0 0 0
+               emissiveColor 0.6 0.9 1
+               transparency 0
+            }
+            texture ImageTexture {
+               url "x-athmosphere.png"
+            }
+         }
+         geometry Rectangle2D { }
+      }
+   }
+}
+
 DEF Earth Shape {
    appearance Appearance {
       texture ImageTexture {
          url "x-landmask4K.png"
       }
-      shaders PackagedShader {
+      shaders DEF StudioEarthShader PackagedShader {
          language "MSL"
          url "data:x-shader/x-metal,
 #include <metal_stdlib>
@@ -41,7 +62,7 @@ vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
 
 constant float uDimension = 260;
 constant float vDimension = 130;
-constant float pointSize  = 0.25;
+constant float pointSize  = 0.3;
 
 fragment
 float4
@@ -75,13 +96,13 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
       // Shadow
       const auto c3 = float3 (1);
       const auto l3 = normalize (float3 (-1, -1, 1));
-      const auto a3 = max (1 - pow (dot (N, l3), 3), 0.0);
+      const auto a3 = 1 - pow (max (dot (N, l3), 0.0), 3);
       const auto r3 = c3 * a3;
       
       // Athmosphere
-      const auto c4 = float3 (1);
-      const auto l4 = normalize (float3 (0, 0, 1));
-      const auto a4 = max (1 - pow (dot (N, l4) * 1.7, 2), 0.0);
+      const auto c4 = float3 (0.6, 0.9, 1);
+      const auto l4 = normalize (float3 (0.1, -0.1, 1));
+      const auto a4 = smoothstep (0.8, 0, max (dot (N, l4), 0.0));
       const auto r4 = c4 * a4;
 
       return float4 ((r1 + r2) * r3 + r4, 1);
@@ -97,4 +118,14 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
       }
    }
    geometry Sphere { }
+}
+
+DEF EnterWorldScript Script {
+  url "ecmascript:
+function initialize ()
+{
+   Browser .setBrowserOption (\"Shading\",          \"PHONG\");
+   Browser .setBrowserOption (\"PrimitiveQuality\", \"HIGH\");
+}
+"
 }

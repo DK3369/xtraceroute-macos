@@ -36,7 +36,7 @@ internal final class AppDelegate :
       contentView .browser .replaceWorld (scene: studioScene)
       
       // Create the window and set the content view.
-      window = NSWindow (contentRect: NSRect (x: 0, y: 0, width: 480, height: 480),
+      window = NSWindow (contentRect: NSRect (x: 0, y: 0, width: 580, height: 580),
                          styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                          backing: .buffered,
                          defer: false)
@@ -61,7 +61,7 @@ internal final class AppDelegate :
        return true
    }
    
-   @IBAction func onEarthToggled (_ menuItem : NSMenuItem)
+   @IBAction private final func onEarthToggled (_ menuItem : NSMenuItem)
    {
       if menuItem .state == .off
       {
@@ -76,12 +76,8 @@ internal final class AppDelegate :
          contentView .browser .replaceWorld (scene: studioScene)
       }
       
-      // Clear locations.
+      // Remove locations.
       
-      guard let group = try? contentView .browser .getExecutionContext () .getNamedNode (name: "Locations") else { return }
-      
-      let locations = try! group .getField (name: "locations") as! MFNode <X3DNode>
-      
-      locations .wrappedValue = [ ]
+      contentView .removeLocations ()
    }
 }
