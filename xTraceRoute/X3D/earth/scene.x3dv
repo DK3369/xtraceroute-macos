@@ -165,7 +165,8 @@ PROTO LocationGroup [
       url "ecmascript:
 function initialize ()
 {
-   set_locations (locations, 0);
+   if (locations .length)
+      set_locations (locations, 0);
 }
 
 function set_locations (value, time)

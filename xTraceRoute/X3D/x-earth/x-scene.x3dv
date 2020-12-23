@@ -187,7 +187,6 @@ PROTO Route [
       appearance Appearance {
          material DEF Material Material {
             emissiveColor 1 0.4 1
-            transparency 1
          }
          shaders DEF RouteShader PackagedShader {
             inputOnly   SFFloat set_fraction
@@ -229,10 +228,14 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
                 constant x3d_Uniforms & uniforms [[ buffer (1) ]])
 {
    const auto color  = uniforms .frontMaterial .emissiveColor;
-   const auto alpha1 = in .fogDepth < fraction ? 1.0 : 0.0;
-   const auto alpha2 = in .fogDepth < fraction ? 0.0 : 1.0;
+   
+   const auto discard1 = in .fogDepth < fraction ? false : true;
+   const auto discard2 = in .fogDepth < fraction ? true  : false;
 
-   return float4 (color, add ? alpha1 : alpha2);
+   if (add ? discard1 : discard2)
+      discard_fragment ();
+
+   return float4 (color, 1);
 }
 "
          }
@@ -375,7 +378,8 @@ PROTO LocationGroup [
       url "ecmascript:
 function initialize ()
 {
-   set_locations (locations, 0);
+   if (locations .length)
+      set_locations (locations, 0);
 }
 
 function set_locations (value, time)
@@ -540,19 +544,7 @@ LayerSet {
             DEF Earth Inline {
                url "x-earth.x3dv"
             }
-            DEF Locations LocationGroup {
-               locations [
-                  Location { }
-                  Location {
-                     latitude 30
-                     longitude 10
-                  }
-                  Location {
-                     latitude 45
-                     longitude 300
-                  }
-               ]
-            }
+            DEF Locations LocationGroup { }
          ]
       }
    ]
