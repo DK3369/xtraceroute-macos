@@ -126,7 +126,7 @@ fragmentShader (const x3d_VertexOut in [[ stage_in ]])
       ]
    }
    
-   DEF Timer TimeSensor {
+   DEF PulsingTimer TimeSensor {
       enabled IS animate
       cycleInterval 1.4
       loop TRUE
@@ -171,7 +171,7 @@ function getPosition (latitude, longitude)
 "
    }
    
-   ROUTE Timer.fraction_changed TO PulsingShader.set_fraction
+   ROUTE PulsingTimer.fraction_changed TO PulsingShader.set_fraction
 }
 
 PROTO Route [
