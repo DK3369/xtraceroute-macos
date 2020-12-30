@@ -1,9 +1,10 @@
 #X3D V3.3 utf8
 
 PROTO Location [
-   inputOutput SFBool animate FALSE
-   inputOutput SFFloat latitude 0
-   inputOutput SFFloat longitude 0
+   inputOutput SFBool   animate FALSE
+   inputOutput SFFloat  latitude 0
+   inputOutput SFFloat  longitude 0
+   inputOutput MFString city [ ]
 ]
 {
    DEF Sphere Transform {
