@@ -207,9 +207,7 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
       loop TRUE
    }
    
-   DEF Delay TimeSensor {
-      cycleInterval 4
-   }
+   DEF Delay TimeSensor { }
 
    DEF LocationScript Script {
       inputOnly      SFBool  set_over
@@ -234,15 +232,16 @@ function set_over (value, time)
    if (value)
    {
       info .whichChoice = 0;
-      delay .startTime  = time;
+      delay .startTime  = time + 4;
    }
 }
 
 function set_delay (value, time)
 {
-   if (!value)
+   if (value)
    {
-      info .whichChoice = value - 1;
+      info .whichChoice = -1;
+      delay .stopTime   = time;
    }
 }
 
@@ -668,9 +667,9 @@ LayerSet {
                url "x-earth.x3dv"
             }
             DEF Locations LocationGroup {
-               #locations Location {
-               #   city "London"
-               #}
+               locations Location {
+                  city "London"
+               }
             }
          ]
       }
