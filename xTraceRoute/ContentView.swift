@@ -156,7 +156,7 @@ internal struct ContentView :
       let location   = try! scene .createProto (typeName: "Location")
       let latitude_  = try! location .getField (name: "latitude")  as! SFFloat
       let longitude_ = try! location .getField (name: "longitude") as! SFFloat
-      let city_      = try! location .getField (name: "city") as! MFString
+      let city_      = try! location .getField (name: "city")      as! MFString
 
       latitude_  .wrappedValue = Float (coords [0]) ?? 0
       longitude_ .wrappedValue = Float (coords [1]) ?? 0

@@ -60,46 +60,46 @@ PROTO Location [
                               inputOnly SFFloat set_fraction
                               language "MSL"
                               url "data:x-shader/x-metal,
-      #include <metal_stdlib>
+#include <metal_stdlib>
 
-      using namespace metal;
+using namespace metal;
 
-      struct x3d_VertexOut
-      {
-         float4 texCoord;
-         float4 position [[position]];
-      };
+struct x3d_VertexOut
+{
+   float4 texCoord;
+   float4 position [[position]];
+};
 
-      vertex
-      x3d_VertexOut
-      vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
-                    const device x3d_VertexIn* vertices [[ buffer (0) ]],
-                    constant x3d_Uniforms & uniforms    [[ buffer (1) ]])
-      {
-         x3d_VertexIn  in  = vertices [vertexId];
-         x3d_VertexOut out = x3d_VertexOut ();
-         
-         out .texCoord = uniforms .textureMatrices [0] * in .texCoords [0];
-         out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
-         
-         return out;
-      }
+vertex
+x3d_VertexOut
+vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
+              const device x3d_VertexIn* vertices [[ buffer (0) ]],
+              constant x3d_Uniforms & uniforms    [[ buffer (1) ]])
+{
+   x3d_VertexIn  in  = vertices [vertexId];
+   x3d_VertexOut out = x3d_VertexOut ();
+   
+   out .texCoord = uniforms .textureMatrices [0] * in .texCoords [0];
+   out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
+   
+   return out;
+}
 
-      constant float pi = 3.1415926535897932384626433832795;
-      constant float fraction [[ function_constant (0) ]];
+constant float pi = 3.1415926535897932384626433832795;
+constant float fraction [[ function_constant (0) ]];
 
-      fragment
-      float4
-      fragmentShader (const x3d_VertexOut in [[ stage_in ]])
-      {
-         const auto color    = float3 (0.7, 0.8, 1);
-         const auto texCoord = in .texCoord .xy / in .texCoord .w;
-         const auto distance = length (texCoord * 2 - float2 (1));
-         const auto alpha    = pow ((sin ((distance + fraction) * 4 * pi) + 1) / 2, 10);
+fragment
+float4
+fragmentShader (const x3d_VertexOut in [[ stage_in ]])
+{
+   const auto color    = float3 (0.7, 0.8, 1);
+   const auto texCoord = in .texCoord .xy / in .texCoord .w;
+   const auto distance = length (texCoord * 2 - float2 (1));
+   const auto alpha    = pow ((sin ((distance + fraction) * 4 * pi) + 1) / 2, 10);
 
-         return float4 (color, alpha);
-      }
-      "
+   return float4 (color, alpha);
+}
+"
                            }
                         }
                         geometry Disk2D {
@@ -207,14 +207,20 @@ fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
       loop TRUE
    }
    
+   DEF Delay TimeSensor {
+      cycleInterval 4
+   }
+
    DEF LocationScript Script {
       inputOnly      SFBool  set_over
+      inputOnly      SFBool  set_delay
       inputOutput    SFBool  animate IS animate
       inputOutput    SFFloat latitude IS latitude
       inputOutput    SFFloat longitude IS longitude
       initializeOnly SFNode  transform USE Transform
       initializeOnly SFNode  point USE PulsingPoint
       initializeOnly SFNode  info USE InfoSwitch
+      initializeOnly SFNode  delay USE Delay
 
       url "ecmascript:
 function initialize ()
@@ -225,7 +231,19 @@ function initialize ()
 
 function set_over (value, time)
 {
-   info .whichChoice = value - 1;
+   if (value)
+   {
+      info .whichChoice = 0;
+      delay .startTime  = time;
+   }
+}
+
+function set_delay (value, time)
+{
+   if (!value)
+   {
+      info .whichChoice = value - 1;
+   }
 }
 
 function set_animate (value, time)
@@ -266,6 +284,7 @@ function getPosition (latitude, longitude)
    
    ROUTE Transform.translation_changed TO InfoOverlay.set_translation
    ROUTE Touch.isOver TO LocationScript.set_over
+   ROUTE Delay.isActive TO LocationScript.set_delay
    ROUTE PulsingTimer.fraction_changed TO PulsingShader.set_fraction
 }
 
