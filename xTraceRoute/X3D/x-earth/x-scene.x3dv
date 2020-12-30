@@ -1,61 +1,149 @@
 #X3D V3.3 utf8
 
 PROTO Location [
-   inputOutput SFBool animate FALSE
-   inputOutput SFFloat latitude 0
-   inputOutput SFFloat longitude 0
-   inputOutput SFVec3f scale 0.01 0.01 0.01
+   inputOutput SFBool     animate FALSE
+   inputOutput SFFloat    latitude 0
+   inputOutput SFFloat    longitude 0
+   inputOutput SFVec3f    scale 0.01 0.01 0.01
+   inputOutput SFRotation orientation 0 0 1 0
+   inputOutput MFString   city [ ]
 ]
 {
-   DEF Transform Transform {
-      scale IS scale
+   Group {
       children [
-         DEF TouchGroup Group {
+         DEF Transform Transform {
+            scale IS scale
             children [
-               DEF Touch TouchSensor { }
-               DEF Sphere Transform {
+               DEF TouchGroup Group {
+                  children [
+                     DEF Touch TouchSensor { }
+                     DEF Sphere Transform {
+                        children [
+                           Shape {
+                              appearance Appearance {
+                                 material Material {
+                                    ambientIntensity 0.712006
+                                    diffuseColor 1 0.4 1
+                                    specularColor 1 0.3 1
+                                    shininess 0.81
+                                 }
+                              }
+                              geometry Sphere { }
+                           }
+                           DEF Hidden Transform {
+                              translation 0 0 0.01
+                              children Shape {
+                                 appearance Appearance {
+                                    material Material {
+                                       transparency 1
+                                    }
+                                 }
+                                 geometry Disk2D {
+                                    innerRadius 0
+                                    outerRadius 2
+                                 }
+                              }
+                           }
+                        ]
+                     }
+                  ]
+               }
+               DEF PulsingPoint Switch {
+                  whichChoice 0
                   children [
                      Shape {
                         appearance Appearance {
                            material Material {
-                              ambientIntensity 0.712006
-                              diffuseColor 1 0.4 1
-                              specularColor 1 0.3 1
-                              shininess 0.81
+                              transparency 1
+                           }
+                           shaders DEF PulsingShader PackagedShader {
+                              inputOnly SFFloat set_fraction
+                              language "MSL"
+                              url "data:x-shader/x-metal,
+      #include <metal_stdlib>
+
+      using namespace metal;
+
+      struct x3d_VertexOut
+      {
+         float4 texCoord;
+         float4 position [[position]];
+      };
+
+      vertex
+      x3d_VertexOut
+      vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
+                    const device x3d_VertexIn* vertices [[ buffer (0) ]],
+                    constant x3d_Uniforms & uniforms    [[ buffer (1) ]])
+      {
+         x3d_VertexIn  in  = vertices [vertexId];
+         x3d_VertexOut out = x3d_VertexOut ();
+         
+         out .texCoord = uniforms .textureMatrices [0] * in .texCoords [0];
+         out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
+         
+         return out;
+      }
+
+      constant float pi = 3.1415926535897932384626433832795;
+      constant float fraction [[ function_constant (0) ]];
+
+      fragment
+      float4
+      fragmentShader (const x3d_VertexOut in [[ stage_in ]])
+      {
+         const auto color    = float3 (0.7, 0.8, 1);
+         const auto texCoord = in .texCoord .xy / in .texCoord .w;
+         const auto distance = length (texCoord * 2 - float2 (1));
+         const auto alpha    = pow ((sin ((distance + fraction) * 4 * pi) + 1) / 2, 10);
+
+         return float4 (color, alpha);
+      }
+      "
                            }
                         }
-                        geometry Sphere { }
-                     }
-                     DEF Hidden Transform {
-                        translation 0 0 0.01
-                        children Shape {
-                           appearance Appearance {
-                              material Material {
-                                 transparency 1
-                              }
-                           }
-                           geometry Disk2D {
-                              innerRadius 0
-                              outerRadius 2
-                           }
+                        geometry Disk2D {
+                           outerRadius 6
                         }
                      }
                   ]
                }
+               DEF Line Shape {
+                  geometry LineSet {
+                     vertexCount 3
+                     color Color {
+                        color [
+                           0 0.5 1,
+                           0 0.5 1,
+                           0 1 1,
+                        ]
+                     }
+                     coord Coordinate {
+                        point [
+                           0 0 0,
+                           0 0 5,
+                           0 0 7,
+                        ]
+                     }
+                  }
+               }
             ]
          }
-         DEF PulsingPoint Switch {
-            whichChoice 0
+         DEF InfoOverlay Transform {
+            scale IS scale
             children [
-               Shape {
-                  appearance Appearance {
-                     material Material {
-                        transparency 1
-                     }
-                     shaders DEF PulsingShader PackagedShader {
-                        inputOnly SFFloat set_fraction
-                        language "MSL"
-                        url "data:x-shader/x-metal,
+               DEF InfoSwitch Switch {
+                  whichChoice -1
+                  children [
+                     Transform {
+                        translation 0 0 7
+                        rotation IS orientation
+                        children [
+                           Shape {
+                              appearance Appearance {
+                                 shaders DEF InfoShader PackagedShader {
+                                    language "MSL"
+                                    url "data:x-shader/x-metal,
 #include <metal_stdlib>
 
 using namespace metal;
@@ -78,50 +166,37 @@ vertexShader (const unsigned int vertexId         [[ vertex_id  ]],
    out .texCoord = uniforms .textureMatrices [0] * in .texCoords [0];
    out .position = uniforms .projectionMatrix * uniforms .modelViewMatrix * in .point;
    
+   out .position .z = 0;
+   
    return out;
 }
 
-constant float pi = 3.1415926535897932384626433832795;
-constant float fraction [[ function_constant (0) ]];
-
 fragment
 float4
-fragmentShader (const x3d_VertexOut in [[ stage_in ]])
+fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
+                constant x3d_Uniforms & uniforms [[ buffer (1) ]],
+                const texture2d <float> texture0 [[ texture (0) ]],
+                const sampler sampler0           [[ sampler (0) ]])
 {
-   const auto color    = float3 (0.7, 0.8, 1);
-   const auto texCoord = in .texCoord .xy / in .texCoord .w;
-   const auto distance = length (texCoord * 2 - float2 (1));
-   const auto alpha    = pow ((sin ((distance + fraction) * 4 * pi) + 1) / 2, 10);
+   const auto color = texture0 .sample (sampler0, in .texCoord .xy / in .texCoord .w);
 
-   return float4 (color, alpha);
+   return color;
 }
 "
+                                 }
+                              }
+                              geometry Text {
+                                 string IS city
+                                 fontStyle ScreenFontStyle {
+                                    pointSize 12
+                                 }
+                              }
+                           }
+                        ]
                      }
-                  }
-                  geometry Disk2D {
-                     outerRadius 6
-                  }
+                  ]
                }
             ]
-         }
-         DEF Line Shape {
-            geometry LineSet {
-               vertexCount 3
-               color Color {
-                  color [
-                     0 0.5 1,
-                     0 0.5 1,
-                     0 1 1,
-                  ]
-               }
-               coord Coordinate {
-                  point [
-                     0 0 0,
-                     0 0 5,
-                     0 0 7,
-                  ]
-               }
-            }
          }
       ]
    }
@@ -132,17 +207,25 @@ fragmentShader (const x3d_VertexOut in [[ stage_in ]])
       loop TRUE
    }
    
-   Script {
-      inputOutput SFBool animate IS animate
-      inputOutput SFFloat latitude IS latitude
-      inputOutput SFFloat longitude IS longitude
-      initializeOnly SFNode transform USE Transform
-      initializeOnly SFNode point USE PulsingPoint
+   DEF LocationScript Script {
+      inputOnly      SFBool  set_over
+      inputOutput    SFBool  animate IS animate
+      inputOutput    SFFloat latitude IS latitude
+      inputOutput    SFFloat longitude IS longitude
+      initializeOnly SFNode  transform USE Transform
+      initializeOnly SFNode  point USE PulsingPoint
+      initializeOnly SFNode  info USE InfoSwitch
 
       url "ecmascript:
 function initialize ()
 {
-   eventsProcessed ()
+   set_animate (animate, 0);
+   set_position ();
+}
+
+function set_over (value, time)
+{
+   info .whichChoice = value - 1;
 }
 
 function set_animate (value, time)
@@ -150,7 +233,17 @@ function set_animate (value, time)
    point .whichChoice = value - 1;
 }
 
-function eventsProcessed ()
+function set_latitude (value, time)
+{
+   set_position ();
+}
+
+function set_longitude (value, time)
+{
+   set_position ();
+}
+
+function set_position ()
 {
    const zAxis    = new SFVec3f (0, 0, 1);
    const position = getPosition (latitude, longitude);
@@ -171,6 +264,8 @@ function getPosition (latitude, longitude)
 "
    }
    
+   ROUTE Transform.translation_changed TO InfoOverlay.set_translation
+   ROUTE Touch.isOver TO LocationScript.set_over
    ROUTE PulsingTimer.fraction_changed TO PulsingShader.set_fraction
 }
 
@@ -362,6 +457,7 @@ PROTO LocationGroup [
       children [
          DEF VP1 Viewpoint { }
          DEF VP2 Viewpoint { }
+         DEF Proxy ProximitySensor { size -1 -1 -1 }
          DEF Locations Group {
             children IS locations
          }
@@ -370,9 +466,10 @@ PROTO LocationGroup [
    }
    
    Script {
-      inputOutput MFNode locations IS locations
+      inputOutput    MFNode locations IS locations
       initializeOnly SFNode vp1 USE VP1
       initializeOnly SFNode vp2 USE VP2
+      initializeOnly SFNode proxy USE Proxy
       initializeOnly SFNode routes USE Routes
 
       url "ecmascript:
@@ -400,7 +497,14 @@ function set_locations (value, time)
    
       for (var i = 0; i < value .length - 1; ++ i)
          value [i] .animate = false;
-      
+         
+      for (var i = 0; i < value .length; ++ i)
+      {
+         Browser .addRoute (proxy, 'orientation_changed', value [i], 'set_orientation');
+         
+         value [i] .set_orientation = proxy .orientation_changed;
+      }
+
       var current  = value [value .length - 1];
       var position = getPosition (current .latitude, current .longitude);
       var vp       = vp1 .isBound ? vp2 : vp1;
@@ -544,7 +648,11 @@ LayerSet {
             DEF Earth Inline {
                url "x-earth.x3dv"
             }
-            DEF Locations LocationGroup { }
+            DEF Locations LocationGroup {
+               #locations Location {
+               #   city "London"
+               #}
+            }
          ]
       }
    ]

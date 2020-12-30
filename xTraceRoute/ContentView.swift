@@ -142,23 +142,25 @@ internal struct ContentView :
          
          DispatchQueue .main .sync
          {
-            addLocation (loc)
+            addLocation (loc, city)
          }
       }
    }
    
-   private func addLocation (_ loc : String)
+   private func addLocation (_ loc : String, _ city : String)
    {
-      let coords    = loc .split (separator: ",")
-      let scene     = browser .getExecutionContext ()
-      let group     = try! scene .getNamedNode (name: "Locations")
-      let locations = try! group .getField (name: "locations") as! MFNode <X3DNode>
-      let location  = try! scene .createProto (typeName: "Location")
-      let latitude  = try! location .getField (name: "latitude")  as! SFFloat
-      let longitude = try! location .getField (name: "longitude") as! SFFloat
-      
-      latitude  .wrappedValue = Float (coords [0]) ?? 0
-      longitude .wrappedValue = Float (coords [1]) ?? 0
+      let coords     = loc .split (separator: ",")
+      let scene      = browser .getExecutionContext ()
+      let group      = try! scene .getNamedNode (name: "Locations")
+      let locations  = try! group .getField (name: "locations") as! MFNode <X3DNode>
+      let location   = try! scene .createProto (typeName: "Location")
+      let latitude_  = try! location .getField (name: "latitude")  as! SFFloat
+      let longitude_ = try! location .getField (name: "longitude") as! SFFloat
+      let city_      = try! location .getField (name: "city") as! MFString
+
+      latitude_  .wrappedValue = Float (coords [0]) ?? 0
+      longitude_ .wrappedValue = Float (coords [1]) ?? 0
+      city_      .wrappedValue = [city]
       
       locations .wrappedValue .append (location)
    }
