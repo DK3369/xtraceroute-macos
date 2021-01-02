@@ -167,9 +167,7 @@ internal struct ContentView :
       
       guard let group = try? browser .getExecutionContext () .getNamedNode (name: "Locations") else { return }
       
-      let locations = try! group .getField (name: "locations") as! MFNode <X3DNode>
-      
-      locations .wrappedValue = [ ]
+      try! group .getField (of: MFNode <X3DNode> .self, name: "locations")! .wrappedValue = [ ]
    }
 }
 
