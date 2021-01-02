@@ -149,20 +149,16 @@ internal struct ContentView :
    
    private func addLocation (_ loc : String, _ city : String)
    {
-      let coords     = loc .split (separator: ",")
-      let scene      = browser .getExecutionContext ()
-      let group      = try! scene .getNamedNode (name: "Locations")
-      let locations  = try! group .getField (name: "locations") as! MFNode <X3DNode>
-      let location   = try! scene .createProto (typeName: "Location")
-      let latitude_  = try! location .getField (name: "latitude")  as! SFFloat
-      let longitude_ = try! location .getField (name: "longitude") as! SFFloat
-      let city_      = try! location .getField (name: "city")      as! MFString
-
-      latitude_  .wrappedValue = Float (coords [0]) ?? 0
-      longitude_ .wrappedValue = Float (coords [1]) ?? 0
-      city_      .wrappedValue = [city]
+      let coords   = loc .split (separator: ",")
+      let scene    = browser .getExecutionContext ()
+      let group    = try! scene .getNamedNode (name: "Locations")
+      let location = try! scene .createProto (typeName: "Location")
       
-      locations .wrappedValue .append (location)
+      try! location .getField (of: SFFloat  .self, name: "latitude")!  .wrappedValue = Float (coords [0]) ?? 0
+      try! location .getField (of: SFFloat  .self, name: "longitude")! .wrappedValue = Float (coords [1]) ?? 0
+      try! location .getField (of: MFString .self, name: "city")!      .wrappedValue = [city]
+      
+      try! group .getField (of: MFNode <X3DNode> .self, name: "locations")! .wrappedValue .append (location)
    }
    
    internal func removeLocations ()
