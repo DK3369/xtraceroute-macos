@@ -34,7 +34,7 @@ PROTO Location [
                               translation 0 0 0.01
                               children Shape {
                                  appearance Appearance {
-                                    material Material {
+                                    material UnlitMaterial {
                                        transparency 1
                                     }
                                  }
@@ -53,7 +53,7 @@ PROTO Location [
                   children [
                      Shape {
                         appearance Appearance {
-                           material Material {
+                           material UnlitMaterial {
                               transparency 1
                            }
                            shaders DEF PulsingShader PackagedShader {
@@ -298,7 +298,7 @@ PROTO Route [
 {
    Shape {
       appearance Appearance {
-         material DEF Material Material {
+         material UnlitMaterial {
             emissiveColor 1 0.4 1
          }
          shaders DEF RouteShader PackagedShader {
@@ -340,7 +340,7 @@ float4
 fragmentShader (const x3d_VertexOut in           [[ stage_in ]],
                 constant x3d_Uniforms & uniforms [[ buffer (1) ]])
 {
-   const auto color  = uniforms .frontMaterial .emissiveColor;
+   const auto color  = uniforms .material .emissiveColor;
    
    const auto discard1 = in .fogDepth < fraction ? false : true;
    const auto discard2 = in .fogDepth < fraction ? true  : false;

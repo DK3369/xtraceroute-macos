@@ -6,7 +6,7 @@
         "repositoryURL": "https://github.com/krzyzanowskim/CoreTextSwift.git",
         "state": {
           "branch": "master",
-          "revision": "b070238d7e2f76dd4009996b951fa1d8e1dfe8c3",
+          "revision": "23713bed5d15764b3157721237c4fb35d6e8b5a8",
           "version": null
         }
       },
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/apple/swift-numerics.git",
         "state": {
           "branch": null,
-          "revision": "6b24333510e9044cf4716a07bed65eeed6bc6393",
-          "version": "0.0.8"
+          "revision": "0a5bc04095a675662cf24757cc0640aa2204253b",
+          "version": "1.0.2"
         }
       },
       {
@@ -60,7 +60,7 @@
         "repositoryURL": "https://github.com/create3000/Swift-X3D.git",
         "state": {
           "branch": "main",
-          "revision": "fabe50f3fed9108e45afb10c0aa367c69e1fadee",
+          "revision": "eb68cf13961a449d5292df0afcb5bc7473674c9f",
           "version": null
         }
       }
